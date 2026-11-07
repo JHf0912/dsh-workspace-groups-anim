@@ -13,7 +13,7 @@
 ## 安装
 ```bash
 # 从 Git 仓库安装
-dsh plugin --profile web add github:YOURNAME/dsh-workspace-groups-anim
+dsh plugin --profile web add github:JHf0912/dsh-workspace-groups-anim
 # 或从本地目录安装（改代码即时生效）
 dsh plugin --profile web add link:/绝对路径/dsh-workspace-groups-anim
 ```

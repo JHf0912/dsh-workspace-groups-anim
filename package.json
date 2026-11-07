@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOURNAME/dsh-workspace-groups-anim"
+    "url": "https://github.com/JHf0912/dsh-workspace-groups-anim"
   },
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
