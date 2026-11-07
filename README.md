@@ -70,16 +70,12 @@
    ```text
    https://github.com/JHf0912/dsh-workspace-groups-anim
    ```
-   想固定版本可带上标签（若该输入框不接受 `#`，请用下面的命令行方式）：
-   ```text
-   https://github.com/JHf0912/dsh-workspace-groups-anim#v0.1.0
-   ```
 4. 安装完成后点 **「立即启用」**；若提示需要重启 `dsh web`，重启并刷新页面即可。
 
 ### 方式二：命令行
 
 ```bash
-dsh plugin --profile web add github:JHf0912/dsh-workspace-groups-anim#v0.1.0
+dsh plugin --profile web add github:JHf0912/dsh-workspace-groups-anim
 ```
 
 ## ⚙️ 使用与设置
