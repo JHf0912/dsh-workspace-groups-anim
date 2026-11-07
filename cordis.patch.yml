@@ -1,0 +1,5 @@
+# dsh-workspace-groups-anim bundle patch
+- insert:
+    - id: workspace-groups-anim
+      name: 'dsh-workspace-groups-anim'
+      config: {}

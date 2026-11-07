@@ -1,0 +1,15 @@
+dsh-workspace-groups-anim 声明
+=============================
+
+本项目是一个衍生作品，基于：
+
+  z-col/dsh-workspace-groups（MIT 许可证，版权所有 (c) 2026 zcol）
+  https://github.com/z-col/dsh-workspace-groups
+
+本衍生版本相对上游的修改：
+  - 会话标签栏支持拖拽排序
+  - 新增 4 种可选拖拽动效（插入线让位 / 平滑跟手 / 幽灵浮层 / 弹性磁吸）
+  - 插件页内设置面板，含 4 种效果的 1:1 实时预览，以及「关闭」选项
+  - 记住用户选择的动效模式
+
+上游全部源码均在 MIT 许可证下使用（详见 LICENSE）。
