@@ -4,14 +4,18 @@
 
 **会话标签栏 · 可拖拽排序 + 4 种动效**
 
-给 the agent harness 网页版侧边栏用的会话标签栏增强插件。
+给 DeepSeek Harness 网页版侧边栏用的会话标签栏增强插件。
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Platform](https://img.shields.io/badge/platform-the agent harness%20Web-4a90d9.svg)](#)
-[![Node](https://img.shields.io/badge/node-%E2%89%A520-2f9e44.svg)](https://nodejs.org)
-[![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](./CHANGELOG.md)
-[![Status](https://img.shields.io/badge/status-beta-f0ad4e.svg)](#)
-[![Repo](https://img.shields.io/badge/github-JHf0912%2Fdsh--workspace--groups--anim-181717?logo=github)](https://github.com/JHf0912/dsh-workspace-groups-anim)
+<p>
+  <a href="https://github.com/JHf0912/dsh-workspace-groups-anim/releases"><img alt="version" src="https://img.shields.io/github/v/tag/JHf0912/dsh-workspace-groups-anim?label=version&style=flat-square&color=orange"></a>
+  <a href="./LICENSE"><img alt="license" src="https://img.shields.io/github/license/JHf0912/dsh-workspace-groups-anim?style=flat-square&color=blue"></a>
+  <img alt="node" src="https://img.shields.io/badge/node-%E2%89%A520-2f9e44?style=flat-square">
+  <img alt="platform" src="https://img.shields.io/badge/platform-DeepSeek Harness%20Web-4a90d9?style=flat-square">
+  <img alt="status" src="https://img.shields.io/badge/status-beta-f0ad4e?style=flat-square">
+  <a href="https://github.com/JHf0912/dsh-workspace-groups-anim/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/JHf0912/dsh-workspace-groups-anim?style=flat-square&color=181717&logo=github"></a>
+</p>
+
+<img src="./docs/preview-3.gif" alt="效果预览：幽灵浮层" width="720">
 
 </div>
 
@@ -56,15 +60,27 @@
 
 ## 📦 安装
 
+> ⚠️ 本插件是上游的**替换版**：安装前请先在「插件」页把原版 `@dsh-xhl/workspace-groups` 停用或卸载，避免两者争用同一侧边栏槽位与 `/workspace-groups/*` 路由。
+
+### 方式一：图形界面（插件页，推荐新手）
+
+1. 打开侧边栏 **「插件」**；
+2. 点右上角 **「添加插件」**（Add plugin）；
+3. 在输入框填入本仓库地址：
+   ```text
+   https://github.com/JHf0912/dsh-workspace-groups-anim
+   ```
+   想固定版本可带上标签（若该输入框不接受 `#`，请用下面的命令行方式）：
+   ```text
+   https://github.com/JHf0912/dsh-workspace-groups-anim#v0.1.0
+   ```
+4. 安装完成后点 **「立即启用」**；若提示需要重启 `dsh web`，重启并刷新页面即可。
+
+### 方式二：命令行
+
 ```bash
-# ① 从 Git 仓库安装（推荐，固定版本）
 dsh plugin --profile web add github:JHf0912/dsh-workspace-groups-anim#v0.1.0
-
-# ② 从本地目录安装（改代码即时生效，适合开发）
-dsh plugin --profile web add link:/绝对路径/dsh-workspace-groups-anim
 ```
-
-> ⚠️ 本插件是上游的**替换版**。请**不要**与原版 `@dsh-xhl/workspace-groups` 同时启用——两者会争用同一个侧边栏槽位与 `/workspace-groups/*` 路由。
 
 ## ⚙️ 使用与设置
 
@@ -95,6 +111,7 @@ dsh-workspace-groups-anim/
 │     ├─ tabs.ts               # 纯状态（含 moveTab 重排）
 │     └─ ...
 ├─ lib/                        # 构建产物（已随仓库提交，git 安装免构建）
+├─ docs/                       # README 预览动图
 ├─ tests/                      # vitest 单测
 ├─ tsdown.config.ts            # 构建配置
 ├─ tsconfig*.json / vitest.config.ts
