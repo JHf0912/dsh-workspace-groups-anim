@@ -9,6 +9,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { getTabAnimMode, loadTabAnimMode, saveTabAnimMode, setTabAnimMode, subscribeTabAnim } from './tab-anim.ts'
+import { getDensity, loadDensity, resetDensity, saveDensity, subscribeDensity, type Density } from './density.ts'
 
 const DUR = { A: 200, B: 280, C: 300, D: 420 }
 const EASE = {
@@ -186,6 +187,100 @@ function buildPreview(host: HTMLElement, getMode: () => string): () => void {
   }
 }
 
+/**
+ * Display-density controls. Three sliders write CSS custom properties (see
+ * density.ts / styles.css) so the real sidebar list and top tab strip shrink
+ * together; the previews below use the plugin's own classes, so they are a 1:1
+ * mirror of what the live UI will look like. No markup structure is changed.
+ */
+function DensitySettings(): JSX.Element {
+  const [den, setDen] = useState<Density>(getDensity())
+  useEffect(() => {
+    loadDensity()
+    const un = subscribeDensity(d => setDen(d))
+    return un
+  }, [])
+  const row = (label: string, key: keyof Density, min: number, max: number, step: number, hint: string): JSX.Element => (
+    <label key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' }}>
+      <span style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
+        <span style={{ fontWeight: 600 }}>{label}</span>
+        <span style={{ color: 'var(--dsw-alias-label-tertiary,#8a8f98)' }}>{den[key]}px · {hint}</span>
+      </span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={den[key]}
+        onChange={e => { setDen(saveDensity({ [key]: Number(e.target.value) } as Partial<Density>)) }}
+        style={{ width: '100%', accentColor: 'var(--dsw-alias-brand-primary,#4a90d9)' }}
+      />
+    </label>
+  )
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid var(--dsw-alias-border-l2,#00000014)', borderRadius: '12px', padding: '12px 14px', background: 'var(--dsw-alias-bg-layer-1,#fbfbfc)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <span style={{ fontWeight: 600, fontSize: '14px', flex: 'none' }}>显示密度</span>
+        <span style={{ fontSize: '12px', color: 'var(--dsw-alias-label-tertiary,#8a8f98)', flex: 1, minWidth: 0 }}>调小字号 / 行高，侧边栏与顶部标签栏一起变紧凑，一屏显示更多标签。改动即时生效并自动保存。</span>
+        <button
+          type="button"
+          onClick={() => setDen(resetDensity())}
+          style={{ flex: 'none', fontSize: '12px', padding: '4px 10px', borderRadius: '8px', border: '1px solid var(--dsw-alias-border-l2,#00000020)', background: 'transparent', cursor: 'pointer', color: 'inherit' }}
+        >恢复默认</button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+        {row('字号', 'fontSize', 9, 16, 1, '越小越紧凑')}
+        {row('列表行高', 'rowHeight', 18, 44, 1, '会话/项目行')}
+        {row('标签栏高度', 'tabHeight', 32, 80, 2, '顶部标签')}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {/* 侧边栏列表预览：复用真实 .wg* 类，尺寸随上面的变量实时变化 */}
+        <div style={{ border: '1px solid var(--dsw-alias-border-l2,#0000000f)', borderRadius: '10px', padding: '6px 4px', background: 'var(--dsw-alias-bg-layer-2,#fff)' }}>
+          <div className="wgList">
+            <div className="wgCategoryRow" role="treeitem">
+              <span className="wgChevron">▸</span>
+              <span className="wgCategoryIcon">📁</span>
+              <span className="wgCategoryLabel">全部项目</span>
+              <span className="wgCategoryCount">3</span>
+            </div>
+            <div className="wgProjectRow" role="treeitem">
+              <span className="wgChevron">▸</span>
+              <span className="wgCategoryIcon">▣</span>
+              <span className="wgProjectLabel">project-1</span>
+            </div>
+            <div className="wgSessionRow" role="treeitem">
+              <span className="wgStatusSlot"><span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2f9e44' }} /></span>
+              <span className="wgSessionTitle">示例会话 —— 更小的字号和行高，一屏放更多</span>
+              <span className="wgSessionTime">5min</span>
+            </div>
+            <div className="wgSessionRow" role="treeitem">
+              <span className="wgStatusSlot"><span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#b9bcc2' }} /></span>
+              <span className="wgSessionTitle">第二个示例会话</span>
+              <span className="wgSessionTime">2h</span>
+            </div>
+          </div>
+        </div>
+        {/* 顶部标签栏预览 */}
+        <div className="wgTabs" style={{ borderRadius: '10px', overflow: 'hidden' }}>
+          <div className="wgTabsScroll">
+            {['示例会话 1', '示例会话 2', '示例会话 3'].map((title, i) => (
+              <div key={title} className={'wgTab' + (i === 0 ? ' wgTabActive' : '')}>
+                <button type="button" className="wgTabMain" tabIndex={-1}>
+                  <span className="wgTabStatus"><span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2f9e44' }} /></span>
+                  <span className="wgTabText">
+                    <span className="wgTabProject">project-{i + 1}</span>
+                    <span className="wgTabLabel">{title}</span>
+                  </span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const CARDS = [
   { k: 'A', name: '模式 1 · 插入线让位', desc: '蓝色竖线标示落点，其余标签平滑让位。落点最清晰、最稳。' },
   { k: 'B', name: '模式 2 · 平滑跟手', desc: '标签略微滞后跟随指针，经过邻居即交换。干净顺滑。' },
@@ -221,6 +316,7 @@ export function TabAnimSettings(): JSX.Element {
   })
   return (
     <div ref={rootRef} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '780px', padding: '4px 0' }}>
+      <DensitySettings />
       <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>会话标签拖拽动效</h3>
       <p style={{ margin: 0, fontSize: '13px', color: 'var(--dsw-alias-label-tertiary,#8a8f98)', lineHeight: 1.6 }}>
         下面 4 种效果都可以直接拖动对比；点右侧「选用」把它设为顶部真实标签栏的拖拽动效。

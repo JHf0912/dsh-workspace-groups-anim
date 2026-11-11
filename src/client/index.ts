@@ -60,6 +60,7 @@ import { createStoreHook } from './store-hook.ts'
 import { shouldOpenTab, type TabOpenMode } from './tabs.ts'
 import { GroupsBrowser } from './GroupsBrowser.tsx'
 import { TabAnimSettings } from './TabAnimSettings.tsx'
+import { loadDensity } from './density.ts'
 import { en, zh, type WorkspaceGroupsKey } from './locales.ts'
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
@@ -97,6 +98,9 @@ export const inject = ['slots', 'sessions', 'workspaces', 'uiWorkspace', 'locale
  * @param ctx - client root context.
  */
 export function apply(ctx: Context): void {
+  // Apply the saved display density (font size / row height / tab-strip height)
+  // before the first render so the sidebar and tab strip come up already sized.
+  loadDensity()
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), '@dsh-xhl/workspace-groups: dictionaries')
 
   // ONE store, ONE scope. The tab store is seated only by the
