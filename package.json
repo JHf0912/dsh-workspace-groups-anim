@@ -1,7 +1,7 @@
 {
   "name": "dsh-workspace-groups-anim",
-  "version": "0.2.0",
-  "description": "可拖拽的会话标签栏（4 种拖拽动效 + 显示密度调节 + 插件页设置与实时预览），用于 the agent harness 网页版侧边栏；基于 z-col/dsh-workspace-groups（MIT）修改。",
+  "version": "0.2.1",
+  "description": "可拖拽的会话标签栏（4 种拖拽动效 + 侧边栏/标签栏分开的显示密度与标签宽度控制 + 插件页设置与实时预览），用于 the agent harness 网页版侧边栏；基于 z-col/dsh-workspace-groups（MIT）修改。",
   "keywords": [
     "dsh",
     "deepseek-harness",

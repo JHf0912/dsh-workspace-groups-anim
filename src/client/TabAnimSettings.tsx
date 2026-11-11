@@ -221,17 +221,25 @@ function DensitySettings(): JSX.Element {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', border: '1px solid var(--dsw-alias-border-l2,#00000014)', borderRadius: '12px', padding: '12px 14px', background: 'var(--dsw-alias-bg-layer-1,#fbfbfc)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <span style={{ fontWeight: 600, fontSize: '14px', flex: 'none' }}>显示密度</span>
-        <span style={{ fontSize: '12px', color: 'var(--dsw-alias-label-tertiary,#8a8f98)', flex: 1, minWidth: 0 }}>调小字号 / 行高，侧边栏与顶部标签栏一起变紧凑，一屏显示更多标签。改动即时生效并自动保存。</span>
+        <span style={{ fontSize: '12px', color: 'var(--dsw-alias-label-tertiary,#8a8f98)', flex: 1, minWidth: 0 }}>侧边栏（工作区）和顶部标签栏可分开调；标签栏还能控制单个标签的宽度上限。改动即时生效并自动保存。</span>
         <button
           type="button"
           onClick={() => setDen(resetDensity())}
           style={{ flex: 'none', fontSize: '12px', padding: '4px 10px', borderRadius: '8px', border: '1px solid var(--dsw-alias-border-l2,#00000020)', background: 'transparent', cursor: 'pointer', color: 'inherit' }}
         >恢复默认</button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-        {row('字号', 'fontSize', 9, 16, 1, '越小越紧凑')}
-        {row('列表行高', 'rowHeight', 18, 44, 1, '会话/项目行')}
-        {row('标签栏高度', 'tabHeight', 32, 80, 2, '顶部标签')}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--dsw-alias-label-secondary,#555)' }}>侧边栏 · 工作区</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {row('字号', 'fontSize', 9, 16, 1, '侧边栏文字')}
+          {row('列表行高', 'rowHeight', 18, 44, 1, '会话/项目行')}
+        </div>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--dsw-alias-label-secondary,#555)', marginTop: '2px' }}>顶部会话标签栏</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+          {row('标签字号', 'tabFontSize', 9, 16, 1, '标签文字')}
+          {row('标签栏高度', 'tabHeight', 32, 80, 2, '整条高度')}
+          {row('标签宽度', 'tabWidth', 120, 360, 10, '单个上限')}
+        </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {/* 侧边栏列表预览：复用真实 .wg* 类，尺寸随上面的变量实时变化 */}
@@ -263,7 +271,7 @@ function DensitySettings(): JSX.Element {
         {/* 顶部标签栏预览 */}
         <div className="wgTabs" style={{ borderRadius: '10px', overflow: 'hidden' }}>
           <div className="wgTabsScroll">
-            {['示例会话 1', '示例会话 2', '示例会话 3'].map((title, i) => (
+            {['示例会话 1 · 较长的标题看宽度上限', '示例会话 2 · 再长一点', '示例会话 3 · 截断效果'].map((title, i) => (
               <div key={title} className={'wgTab' + (i === 0 ? ' wgTabActive' : '')}>
                 <button type="button" className="wgTabMain" tabIndex={-1}>
                   <span className="wgTabStatus"><span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2f9e44' }} /></span>

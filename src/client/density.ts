@@ -1,27 +1,32 @@
 /**
- * Display density: font size + row height + top tab-strip height.
+ * Display density: independent controls for the sidebar list and the top
+ * session-tab strip, plus an explicit tab-width cap.
  *
- * A pure cosmetic preference (like the drag-animation mode), so it lives in
- * browser storage. The chosen values are written to CSS custom properties on
- * <html>, which every `.wg*` rule reads with its original size as the fallback
- * — so the default look is byte-for-byte unchanged until the user adjusts it.
+ *   sidebar : fontSize, rowHeight
+ *   tabs    : tabFontSize, tabHeight, tabWidth (max width of one chip)
  *
- * Shrinking these makes the sidebar session list AND the top tab strip denser,
- * so more session tabs fit in one window without altering the plugin's markup.
+ * A pure cosmetic preference, so it lives in browser storage. The values are
+ * written to CSS custom properties on <html>; every `.wg*` rule reads them with
+ * its original size as the fallback — the default look is unchanged until the
+ * user adjusts it. No markup/class names change.
  */
 export interface Density {
-  /** Base font size in px (sidebar labels + tab labels). */
+  /** Sidebar label font size in px. */
   fontSize: number
   /** Height of one sidebar row (category / project / session) in px. */
   rowHeight: number
+  /** Top tab label font size in px. */
+  tabFontSize: number
   /** Height of the top session-tab strip in px. */
   tabHeight: number
+  /** Max width of one top tab chip in px. */
+  tabWidth: number
 }
 
 const STORAGE_KEY = 'dsw.workspaceGroups.density'
 
 /** Original, unmodified sizes — the fallbacks baked into styles.css. */
-const DEFAULTS: Density = { fontSize: 12, rowHeight: 28, tabHeight: 56 }
+const DEFAULTS: Density = { fontSize: 12, rowHeight: 28, tabFontSize: 12, tabHeight: 56, tabWidth: 240 }
 
 let current: Density = { ...DEFAULTS }
 let loaded = false
@@ -34,10 +39,16 @@ function clampInt(value: unknown, min: number, max: number, fallback: number): n
 }
 
 function normalize(input: Partial<Density>): Density {
+  const fontSize = clampInt(input.fontSize, 9, 16, DEFAULTS.fontSize)
+  // Migration: older stored objects had no tabFontSize — inherit the sidebar
+  // font size so an existing preference keeps looking the same.
+  const tabFontSize = clampInt(input.tabFontSize, 9, 16, fontSize)
   return {
-    fontSize: clampInt(input.fontSize, 9, 16, DEFAULTS.fontSize),
+    fontSize,
     rowHeight: clampInt(input.rowHeight, 18, 44, DEFAULTS.rowHeight),
+    tabFontSize,
     tabHeight: clampInt(input.tabHeight, 32, 80, DEFAULTS.tabHeight),
+    tabWidth: clampInt(input.tabWidth, 120, 360, DEFAULTS.tabWidth),
   }
 }
 
@@ -56,9 +67,11 @@ export function applyDensity(d: Density = current): void {
     const el = document.documentElement
     el.style.setProperty('--wg-font-size', `${d.fontSize}px`)
     el.style.setProperty('--wg-font-sm', `${Math.max(9, d.fontSize - 1)}px`)
-    el.style.setProperty('--wg-font-xs', `${Math.max(8, d.fontSize - 2)}px`)
     el.style.setProperty('--wg-row-height', `${d.rowHeight}px`)
+    el.style.setProperty('--wg-tab-font-size', `${d.tabFontSize}px`)
+    el.style.setProperty('--wg-tab-font-xs', `${Math.max(8, d.tabFontSize - 2)}px`)
     el.style.setProperty('--wg-tab-height', `${d.tabHeight}px`)
+    el.style.setProperty('--wg-tab-max-width', `${d.tabWidth}px`)
   } catch { /* no document (non-browser): nothing to apply */ }
 }
 
