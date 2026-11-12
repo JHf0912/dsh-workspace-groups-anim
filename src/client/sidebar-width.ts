@@ -61,17 +61,36 @@ function push(px: number): void {
 export function getSidebarWidth(): number { return current }
 
 /**
- * Load the saved width (or the compact first-run value), then push it to the
- * shell. Re-pushed a few times while the frame mounts, because the layout
- * store exists before the frame's first measurement.
+ * Load the saved width, or — on first run — shrink the *current* sidebar by a
+ * modest 24 px (never below the shell minimum, never re-opening a collapsed
+ * sidebar). Re-pushed a few times while the frame mounts.
  */
 export function initSidebarWidth(): void {
   const stored = readStored()
-  current = stored ?? SIDEBAR_COMPACT
-  if (stored === null) persist()
-  const apply = (): void => { push(current) }
-  apply()
-  for (const ms of [80, 260, 700, 1500]) setTimeout(apply, ms)
+  if (stored !== null) {
+    current = stored
+    const apply = (): void => { push(current) }
+    apply()
+    for (const ms of [80, 260, 700, 1500]) setTimeout(apply, ms)
+    return
+  }
+  // First run: measure the live sidebar column and shave a little off.
+  let done = false
+  const shrink = (): void => {
+    if (done) return
+    let width = 0
+    try {
+      const el = document.querySelector<HTMLElement>('[class*="_sidebarCol"]')
+      width = el === null ? 0 : el.getBoundingClientRect().width
+    } catch { width = 0 }
+    // No column yet, or collapsed to the rail: leave it alone.
+    if (width < 120) return
+    done = true
+    current = clamp(width - 24)
+    persist()
+    push(current)
+  }
+  for (const ms of [120, 400, 900, 1600]) setTimeout(shrink, ms)
 }
 
 /** Set + persist a width (clamped to the shell's supported range). */

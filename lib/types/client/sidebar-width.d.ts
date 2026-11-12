@@ -28,9 +28,9 @@ export declare function setLayoutResolver(fn: (() => LayoutControllerLike | null
 /** Current preferred width in px. */
 export declare function getSidebarWidth(): number;
 /**
- * Load the saved width (or the compact first-run value), then push it to the
- * shell. Re-pushed a few times while the frame mounts, because the layout
- * store exists before the frame's first measurement.
+ * Load the saved width, or — on first run — shrink the *current* sidebar by a
+ * modest 24 px (never below the shell minimum, never re-opening a collapsed
+ * sidebar). Re-pushed a few times while the frame mounts.
  */
 export declare function initSidebarWidth(): void;
 /** Set + persist a width (clamped to the shell's supported range). */
