@@ -62,6 +62,7 @@ import { GroupsBrowser } from './GroupsBrowser.tsx'
 import { TabAnimSettings } from './TabAnimSettings.tsx'
 import { loadDensity } from './density.ts'
 import { loadBlankTitles } from './title-blank.ts'
+import { initSidebarWidth, setLayoutResolver } from './sidebar-width.ts'
 import { en, zh, type WorkspaceGroupsKey } from './locales.ts'
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
@@ -104,6 +105,15 @@ export function apply(ctx: Context): void {
   loadDensity()
   // Load the blank-display-title overlay before the first render.
   loadBlankTitles()
+  // Drive the shell's left-sidebar width (same panel action the drag handle uses).
+  // Resolved lazily via ctx.get('layout') so this is a soft, optional dependency.
+  setLayoutResolver(() => {
+    try {
+      const ctxAny = ctx as unknown as { get?: (name: string) => unknown; layout?: unknown }
+      return (ctxAny.get?.('layout') ?? ctxAny.layout) as never
+    } catch { return null }
+  })
+  initSidebarWidth()
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), '@dsh-xhl/workspace-groups: dictionaries')
 
   // ONE store, ONE scope. The tab store is seated only by the

@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { getTabAnimMode, loadTabAnimMode, saveTabAnimMode, setTabAnimMode, subscribeTabAnim } from './tab-anim.ts'
 import { getDensity, loadDensity, resetDensity, saveDensity, subscribeDensity, type Density } from './density.ts'
+import { getSidebarWidth, saveSidebarWidth } from './sidebar-width.ts'
 
 const DUR = { A: 200, B: 280, C: 300, D: 420 }
 const EASE = {
@@ -195,11 +196,13 @@ function buildPreview(host: HTMLElement, getMode: () => string): () => void {
  */
 function DensitySettings(): JSX.Element {
   const [den, setDen] = useState<Density>(getDensity())
+  const [sbw, setSbw] = useState<number>(getSidebarWidth())
   useEffect(() => {
     loadDensity()
     const un = subscribeDensity(d => setDen(d))
     return un
   }, [])
+  const presetStyle: React.CSSProperties = { flex: 'none', fontSize: '11px', padding: '3px 8px', borderRadius: '7px', border: '1px solid var(--dsw-alias-border-l2,#00000020)', background: 'transparent', cursor: 'pointer', color: 'inherit' }
   const row = (label: string, key: keyof Density, min: number, max: number, step: number, hint: string): JSX.Element => (
     <label key={key} style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' }}>
       <span style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
@@ -227,6 +230,26 @@ function DensitySettings(): JSX.Element {
           onClick={() => setDen(resetDensity())}
           style={{ flex: 'none', fontSize: '12px', padding: '4px 10px', borderRadius: '8px', border: '1px solid var(--dsw-alias-border-l2,#00000020)', background: 'transparent', cursor: 'pointer', color: 'inherit' }}
         >恢复默认</button>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', fontSize: '12px' }}>
+          <span style={{ fontWeight: 600 }}>左侧栏宽度</span>
+          <span style={{ color: 'var(--dsw-alias-label-tertiary,#8a8f98)' }}>{sbw}px · 托管层允许 264–420px</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <input
+            type="range"
+            min={264}
+            max={420}
+            step={4}
+            value={sbw}
+            onChange={e => { setSbw(saveSidebarWidth(Number(e.target.value))) }}
+            style={{ flex: 1, accentColor: 'var(--dsw-alias-brand-primary,#4a90d9)' }}
+          />
+          <button type="button" style={presetStyle} onClick={() => { setSbw(saveSidebarWidth(264)) }}>窄 264</button>
+          <button type="button" style={presetStyle} onClick={() => { setSbw(saveSidebarWidth(280)) }}>标准 280</button>
+          <button type="button" style={presetStyle} onClick={() => { setSbw(saveSidebarWidth(340)) }}>宽 340</button>
+        </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--dsw-alias-label-secondary,#555)' }}>侧边栏 · 工作区</div>
