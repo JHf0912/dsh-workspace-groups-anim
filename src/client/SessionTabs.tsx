@@ -17,6 +17,7 @@ import { mountTabSeat } from './tab-seat.ts'
 import { orderedTabs, projectIndex, tabIndicator, type SessionTab, type SessionTabIndicator } from './tabs.ts'
 import { currentSessionId } from './tree.ts'
 import { TAB_ANIM_DUR, TAB_ANIM_EASE, getTabAnimMode, loadTabAnimMode, subscribeTabAnim } from './tab-anim.ts'
+import { useBlankTitles } from './title-blank.ts'
 
 /** Private dataTransfer type so only in-strip drags are accepted. */
 const TAB_DND_TYPE = 'application/x-dsh-wg-tab'
@@ -54,6 +55,7 @@ export function SessionTabs({
   const statuses = useSessionStatus(s => s)
   const currentId = useSessions(s => currentSessionId(s))
   const workspaces = useWorkspaces(s => s.items)
+  const blankTitles = useBlankTitles()
 
   const projects = useMemo(() => projectIndex(workspaces), [workspaces])
 
@@ -179,6 +181,8 @@ export function SessionTabs({
           const active = tab.sessionId === currentId
           const indicator = tabIndicator(summary, statuses.get(tab.sessionId))
           const project = projects.get(tab.sessionId)
+          const projectBlanked = project !== undefined && blankTitles.workspaces.includes(String(project.workspaceId))
+          const sessionBlanked = blankTitles.sessions.includes(tab.sessionId)
           const tip = project === undefined
             ? label
             : `${project.label} · ${label}\n${project.path}`
@@ -211,10 +215,10 @@ export function SessionTabs({
                   <StateDot state={dotState(indicator)} />
                 </span>
                 <span className="wgTabText">
-                  {project !== undefined && (
+                  {project !== undefined && !projectBlanked && (
                     <span className="wgTabProject" title={project.path}>{project.label}</span>
                   )}
-                  <span className="wgTabLabel">{label}</span>
+                  <span className="wgTabLabel">{sessionBlanked ? '' : label}</span>
                 </span>
               </button>
               <Tooltip label={t('tabs.close')} side="top" delayMs={600}>

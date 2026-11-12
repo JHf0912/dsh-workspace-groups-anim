@@ -46,6 +46,7 @@ import { CategoryRow, DND_CATEGORY_TYPE, DND_WORKSPACE_TYPE, hasPluginDragType, 
 import { fetchOpenInApps, folderAppId, openPathInApp } from './open-folder.ts'
 import { QuickPanel } from './QuickPanel.tsx'
 import { SessionTabs } from './SessionTabs.tsx'
+import { setSessionBlank, setWorkspaceBlank, useBlankTitles } from './title-blank.ts'
 import { FlowerBranch } from './FlowerBranch.tsx'
 import css from './styles.css?inline'
 
@@ -178,6 +179,9 @@ export function GroupsBrowser({
   tabActions,
   t,
 }: GroupsBrowserProps) {
+  // Blank-display-title overlay (see title-blank.ts): a rename to empty keeps the
+  // real host title but renders the label empty, since the host refuses "".
+  const blankTitles = useBlankTitles()
   // Inject the stylesheet once per fiber; dispose removes it (HMR safe).
   useEffect(() => {
     const style = document.createElement('style')
@@ -408,11 +412,19 @@ export function GroupsBrowser({
   const [renameError, setRenameError] = useState<string | null>(null)
   const renameTrimmed = renameDraft.trim()
   const renameDuplicate = renameTarget !== null && renameTrimmed !== '' && renameTrimmed !== renameTarget.currentTitle
-    && workspaces.some(w => w.title === renameTrimmed)
-  const renameBlocked = renaming || renameTrimmed === '' || renameTarget === null
+    && workspaces.some(w => w.title === renameTrimmed && w.workspaceId !== renameTarget.workspaceId)
+  const renameBlocked = renaming || renameTarget === null
     || renameTrimmed === renameTarget.currentTitle || renameDuplicate
   const confirmRename = () => {
     if (renameBlocked || renameTarget === null) return
+    // Empty input means "hide the label": store a blank-display flag instead of
+    // sending "" to the host (which rejects a blank Workspace title).
+    if (renameTrimmed === '') {
+      setWorkspaceBlank(String(renameTarget.workspaceId), true)
+      setRenameTarget(null)
+      return
+    }
+    setWorkspaceBlank(String(renameTarget.workspaceId), false)
     setRenaming(true)
     setRenameError(null)
     renameWorkspace(renameTarget.workspaceId, renameTrimmed).then(() => {
@@ -447,9 +459,15 @@ export function GroupsBrowser({
   const [sessionRenaming, setSessionRenaming] = useState(false)
   const [sessionRenameError, setSessionRenameError] = useState<string | null>(null)
   const sessionRenameTrimmed = sessionRenameDraft.trim()
-  const sessionRenameBlocked = sessionRenaming || sessionRenameTrimmed === '' || sessionRenameTarget === null
+  const sessionRenameBlocked = sessionRenaming || sessionRenameTarget === null
   const confirmSessionRename = () => {
     if (sessionRenameBlocked || sessionRenameTarget === null) return
+    if (sessionRenameTrimmed === '') {
+      setSessionBlank(String(sessionRenameTarget.sessionId), true)
+      setSessionRenameTarget(null)
+      return
+    }
+    setSessionBlank(String(sessionRenameTarget.sessionId), false)
     setSessionRenaming(true)
     setSessionRenameError(null)
     renameSession(sessionRenameTarget.sessionId, sessionRenameTrimmed).then(() => {
@@ -462,7 +480,7 @@ export function GroupsBrowser({
   }
   const onSessionRename = (sessionId: SessionId, currentTitle: string) => {
     setSessionRenameTarget({ sessionId, currentTitle })
-    setSessionRenameDraft(currentTitle)
+    setSessionRenameDraft(blankTitles.sessions.includes(String(sessionId)) ? '' : currentTitle)
     setSessionRenameError(null)
   }
 
@@ -1009,8 +1027,8 @@ export function GroupsBrowser({
                 onNewSession={startSession}
                 onOpen={open}
                 onRenameRequest={(workspaceId, title) => {
-                  setRenameTarget({ workspaceId, currentTitle: title })
-                  setRenameDraft(title)
+                  setRenameTarget({ workspaceId, currentTitle: blankTitles.workspaces.includes(String(workspaceId)) ? '' : title })
+                  setRenameDraft(blankTitles.workspaces.includes(String(workspaceId)) ? '' : title)
                   setRenameError(null)
                 }}
                 onDeleteRequest={(workspaceId, title) => {
@@ -1064,8 +1082,8 @@ export function GroupsBrowser({
                 onNewSession={startSession}
                 onOpen={open}
                 onRenameRequest={(workspaceId, title) => {
-                  setRenameTarget({ workspaceId, currentTitle: title })
-                  setRenameDraft(title)
+                  setRenameTarget({ workspaceId, currentTitle: blankTitles.workspaces.includes(String(workspaceId)) ? '' : title })
+                  setRenameDraft(blankTitles.workspaces.includes(String(workspaceId)) ? '' : title)
                   setRenameError(null)
                 }}
                 onDeleteRequest={(workspaceId, title) => {

@@ -29,6 +29,7 @@ import {
 import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import type { WorkspaceGroupsKey } from './locales.ts'
 import type { CategoryNode, SessionNode, WorkspaceGroupNode } from './tree.ts'
+import { useBlankTitles } from './title-blank.ts'
 
 type T = TranslateNS<'workspaceGroups'>
 
@@ -193,6 +194,8 @@ export function WorkspaceRow({ node, t, onToggle, onNewSession, onRename, onDele
   onDragStartExtra?: () => void
 } & RowDropProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const blankTitles = useBlankTitles()
+  const displayLabel = blankTitles.workspaces.includes(String(node.workspaceId)) ? '' : node.label
   const menuItems = [
     ...(onOpenInFolder !== undefined
       ? [{ id: 'openInFolder', label: t('workspace.openInFolder'), icon: <IconFolderOpenOutlineRegular size={16} /> }]
@@ -238,7 +241,7 @@ export function WorkspaceRow({ node, t, onToggle, onNewSession, onRename, onDele
             browser) so groups (folder glyph) and projects stay distinguishable. */}
         <IconProjectAddOutlineRegular />
       </span>
-      <span className="wgProjectLabel" title={node.path}>{node.label}</span>
+      <span className="wgProjectLabel" title={node.path}>{displayLabel}</span>
       <span className="wgRowActions">
         <Menu
           open={menuOpen}
@@ -308,6 +311,8 @@ export function SessionRow({ node, currentId, now, t, onOpen, onRename, onFork, 
 }) {
   const selected = node.id === currentId
   const [menuOpen, setMenuOpen] = useState(false)
+  const blankTitles = useBlankTitles()
+  const displayTitle = blankTitles.sessions.includes(String(node.id)) ? '' : node.title
   // The ACTIVE session hands its status slot to the flower: the branch anchors
   // on this cell (`anchorX` targets `.wgStatusSlot`), so the bloom and the dot
   // occupy the same 14px square. Drawing both puts the dot's green "ongoing"
@@ -332,7 +337,7 @@ export function SessionRow({ node, currentId, now, t, onOpen, onRename, onFork, 
       <span className="wgStatusSlot">
         {showStatus && <StateDot state={sessionDotState(node)} />}
       </span>
-      <span className="wgSessionTitle">{node.title}</span>
+      <span className="wgSessionTitle">{displayTitle}</span>
       {!node.blank && <span className="wgSessionTime">{relativeTimeLabel(node.updatedAt, now)}</span>}
       {node.snippet !== undefined && (
         <span className="wgSessionSnippet" title={node.snippet}>{node.snippet}</span>

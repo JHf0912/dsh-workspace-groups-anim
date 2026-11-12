@@ -61,6 +61,7 @@ import { shouldOpenTab, type TabOpenMode } from './tabs.ts'
 import { GroupsBrowser } from './GroupsBrowser.tsx'
 import { TabAnimSettings } from './TabAnimSettings.tsx'
 import { loadDensity } from './density.ts'
+import { loadBlankTitles } from './title-blank.ts'
 import { en, zh, type WorkspaceGroupsKey } from './locales.ts'
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
@@ -101,6 +102,8 @@ export function apply(ctx: Context): void {
   // Apply the saved display density (font size / row height / tab-strip height)
   // before the first render so the sidebar and tab strip come up already sized.
   loadDensity()
+  // Load the blank-display-title overlay before the first render.
+  loadBlankTitles()
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), '@dsh-xhl/workspace-groups: dictionaries')
 
   // ONE store, ONE scope. The tab store is seated only by the
