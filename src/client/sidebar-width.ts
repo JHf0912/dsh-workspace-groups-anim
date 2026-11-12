@@ -65,11 +65,19 @@ export function getSidebarWidth(): number { return current }
  * modest 24 px (never below the shell minimum, never re-opening a collapsed
  * sidebar). Re-pushed a few times while the frame mounts.
  */
+function measureSidebarWidth(): number {
+  try {
+    const el = document.querySelector<HTMLElement>('[class*="_sidebarCol"]')
+    return el === null ? 0 : el.getBoundingClientRect().width
+  } catch { return 0 }
+}
+
 export function initSidebarWidth(): void {
   const stored = readStored()
   if (stored !== null) {
     current = stored
-    const apply = (): void => { push(current) }
+    // Respect a collapsed sidebar: only push while it is open.
+    const apply = (): void => { if (measureSidebarWidth() >= 120) push(current) }
     apply()
     for (const ms of [80, 260, 700, 1500]) setTimeout(apply, ms)
     return
@@ -78,11 +86,7 @@ export function initSidebarWidth(): void {
   let done = false
   const shrink = (): void => {
     if (done) return
-    let width = 0
-    try {
-      const el = document.querySelector<HTMLElement>('[class*="_sidebarCol"]')
-      width = el === null ? 0 : el.getBoundingClientRect().width
-    } catch { width = 0 }
+    const width = measureSidebarWidth()
     // No column yet, or collapsed to the rail: leave it alone.
     if (width < 120) return
     done = true
